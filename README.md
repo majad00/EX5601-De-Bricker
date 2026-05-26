@@ -24,7 +24,7 @@ It can:
 
 For normal users, download the latest tested build from the  **Releases** section.
 
-Windows / Linux: Latest release packag from here =  
+Windows / Linux: Latest release packag from here =  https://github.com/majad00/EX5601-De-Bricker/releases/download/1.1/EX5601-De-Bricker-v1.zip
 
 ```text
 Windows: EX5601-De-Bricker-v1.zip
@@ -134,5 +134,80 @@ python repair_bootchain.py COM3 --write-fip repair_fip.bin --write-bl2 repair_bl
 ```
 
 ---
+### Payload files
 
+The RAM boot payloads are:
 
+```text
+payload_bl2.bin # this is original bl2 file taken from Openwrt release
+paylaod_FIP.bin # this is modified version of FIP uboot, the used patch to create this can be found in the /src dir
+```
+
+Note: All files intentionally spelled this way and should be same if you replace them with latest release
+
+Repair payloads are:
+
+```text
+repair_bl2.bin # non modified version of bl2, you can replace it with your on boot loader
+repair_fip.bin # non modified version of FIP image you can replease with your own.
+```
+
+Optional factory restore image:
+
+```text
+factory.bin # not provided with release 
+```
+
+### Building from source
+
+Install dependencies:
+
+```bash
+pip install pyserial
+```
+
+Run from source on Windows:
+
+```powershell
+python debricker_menu.py COM3
+```
+
+Run from source on Linux:
+
+```bash
+python3 debricker_menu.py /dev/ttyUSB0
+```
+
+### Building release binaries
+
+Install PyInstaller:
+
+```bash
+pip install pyinstaller pyserial
+```
+
+Build Windows EXE on Windows:
+
+```powershell
+pyinstaller --clean --onefile --name ex5601-debricker debricker_menu.py
+```
+
+Output:
+
+```text
+dist\ex5601-debricker.exe
+```
+
+Build Linux binary on Linux:
+
+```bash
+pyinstaller --clean --onefile --name ex5601-debricker debricker_menu.py
+```
+
+Output:
+
+```text
+dist/ex5601-debricker
+```
+
+PyInstaller is not a cross-compiler. Build the Windows executable on Windows and the Linux executable on Linux.
