@@ -1,9 +1,9 @@
 # EX5601-De-Bricker
 
-### This tool de-bricks EX5601 / T56 routers using the MTK BootROM protocol.
-**Traditional recovery often requires a UART terminal, TFTP server, manual U-Boot commands, and careful partition handling. This tool automates that process**
+### If your EX5601 / T56 router has bricked and become paper-weight, this tool can de-bricks
+**Recovery often requires a UART terminal, TFTP server, manual U-Boot commands, and careful partition handling, but with this tool you automates everything**
 
-
+### How it works
 EX5601-De-Bricker is written in Python and uses the MediaTek BootROM UART protocol, including BootROM sync and RAM-stage loading, similar in concept to tools such as mtk_uartboot. 
 It is built specifically for Zyxel EX5601-T0 / T56 routers and understands the router’s boot chain, partition layout, and recovery requirements.
 It can:
@@ -19,6 +19,7 @@ It can:
 
 
 ## 1. Quick guide
+(**Download de-bricker and run it from PC while router connecte to UART**)
 
 ###  download
 
