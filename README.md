@@ -106,9 +106,13 @@ Recommended repair order:
 4. Restore Factory only from a known-good backup.
 ```
 
-### For Expert users,  command examples
+### For Expert users only:
+> [!TIP]
+> Use "python loader.py PORT" from SRC directory that loads linux based restore service, then access it at 192.168.1.1:180880
+> Download bundle from: "https://github.com/majad00/ex5601-openwrt-ubootmod-to-stock-layout/"releases/download/1.1/restore_bundle_ex5601.tar.gz"
 
-If you are using the Python version instead of the compiled release:
+### Other options for Experts:
+From SRC dir simple run:
 
 ```powershell
 python debricker_menu.py COM3
