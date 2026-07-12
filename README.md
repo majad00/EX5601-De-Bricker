@@ -111,6 +111,7 @@ Recommended repair order:
 > Download bundle from: "https://github.com/majad00/ex5601-openwrt-ubootmod-to-stock-layout/"releases/download/1.1/restore_bundle_ex5601.tar.gz" beofore you start
 
 ```powershell
+cd src
 python loader.py COM3
 ```
 When linux is booted, go to web site 192.168.1.18080 to complete recovery.
