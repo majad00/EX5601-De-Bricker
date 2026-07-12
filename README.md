@@ -106,12 +106,16 @@ Recommended repair order:
 4. Restore Factory only from a known-good backup.
 ```
 
-### For Expert users only:
+### For Expert users only ( Examples on Windows 10:
 > [!TIP]
-> Use "python loader.py PORT" from SRC directory that loads linux based restore service, then access it at 192.168.1.1:180880
-> Download bundle from: "https://github.com/majad00/ex5601-openwrt-ubootmod-to-stock-layout/"releases/download/1.1/restore_bundle_ex5601.tar.gz"
+> Download bundle from: "https://github.com/majad00/ex5601-openwrt-ubootmod-to-stock-layout/"releases/download/1.1/restore_bundle_ex5601.tar.gz" beofore you start
 
-### Other options for Experts:
+```powershell
+python loader.py COM3
+```
+When linux is booted, go to web site 192.168.1.18080 to complete recovery.
+
+### Other options:
 From SRC dir simple run:
 
 ```powershell
