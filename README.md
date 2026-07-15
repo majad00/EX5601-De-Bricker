@@ -148,6 +148,195 @@ python repair_bootchain.py COM3 --write-fip repair_fip.bin --write-bl2 repair_bl
 ```
 
 ---
+
+
+
+### Troubleshooting 
+
+If the Ymodem transfer fails and you need to use a LAN to upload files OR if you wish to perform a manual repair, follow these steps:
+
+## Step 1: Prepare Files on Your PC
+
+You need the following files:
+
+- `repair_bl2.bin`
+- `repair_fip.bin`
+
+Place these files in a single folder, for example:
+
+`C:\De-Bricker\`
+
+## Step 2: Create Padded BL2 and FIP Files
+
+Open PowerShell in the folder where the files are located.
+
+### Create Padded BL2
+
+Run the following command:
+
+```powershell
+python -c "from pathlib import Path; d=Path('repair_bl2.bin').read_bytes(); assert len(d)<=0x100000; Path('repair_bl2_padded.bin').write_bytes(d+b'\xff'*(0x100000-len(d))); print('repair_bl2:', len(d), '->', 0x100000)"
+```
+
+### Create Padded FIP
+
+Run the following command:
+
+```powershell
+python -c "from pathlib import Path; d=Path('repair_fip.bin').read_bytes(); assert len(d)<=0x1c0000; Path('repair_fip_padded.bin').write_bytes(d+b'\xff'*(0x1c0000-len(d))); print('repair_fip:', len(d), '->', 0x1c0000)"
+```
+
+After running these commands, you should have the following padded files:
+
+- `repair_bl2_padded.bin` = 1,048,576 bytes
+- `repair_fip_padded.bin` = 1,835,008 bytes
+
+## Step 3: Start TFTP Server
+
+Place the padded files in your TFTP server root directory:
+
+- `repair_bl2_padded.bin`
+- `repair_fip_padded.bin`
+
+### Example Network Settings
+
+- PC / TFTP Server IP: `192.168.1.10`
+- Router U-Boot IP: `192.168.1.2`
+
+Connect your PC's Ethernet to the router's LAN port.
+
+## Step 4: Boot RAM De-Bricker
+
+Run your de-bricker tool with the following command:
+
+```powershell
+.\ex5601-debricker.exe COM3
+```
+
+Alternatively, use the Python version:
+
+```powershell
+python debricker_menu.py COM3
+```
+
+Power-cycle the router when the tool waits for BootROM synchronization.
+
+When the menu appears, select:
+
+9. Open manual U-Boot command prompt
+
+You should see:
+
+`EX5601-DEBRICKER>`
+
+## Step 5: Confirm Layout Before Writing
+
+Run the command:
+
+```shell
+mtd list
+```
+
+Ensure you see the exact safe layout:
+
+```
+0x000000000000-0x000000100000 : "bl2"
+0x000000100000-0x000000180000 : "u-boot-env"
+0x000000180000-0x000000380000 : "Factory"
+0x000000380000-0x000000540000 : "fip"
+0x000000540000-0x000000580000 : "zloader"
+0x000000580000-0x00001e000000 : "ubi"
+```
+
+If the FIP shows an incorrect layout (e.g., `0x000000380000-0x000000580000 : "fip"`), proceed at your own risk, as this overlaps with the zloader area.
+
+## Step 6: Set Network in U-Boot
+
+At the `EX5601-DEBRICKER>` prompt, run:
+
+```shell
+setenv ipaddr 192.168.1.2
+setenv serverip 192.168.1.10
+```
+
+Test the TFTP with the FIP file:
+
+```shell
+tftpboot 0x46000000 repair_fip_padded.bin
+```
+
+### Expected Output:
+
+```
+Bytes transferred = 1835008
+```
+
+## Step 7: Repair FIP First
+
+Run these commands in order:
+
+```shell
+tftpboot 0x46000000 repair_fip_padded.bin
+crc32 0x46000000 0x1c0000
+mtd erase fip
+mtd write fip 0x46000000 0x0 0x1c0000
+mtd read fip 0x47000000 0x0 0x1c0000
+crc32 0x47000000 0x1c0000
+```
+
+The two CRC values must match. For example:
+
+```
+crc32 for 46000000 ... 461bffff ==> XXXXXXXX
+crc32 for 47000000 ... 471bffff ==> XXXXXXXX
+```
+
+If they match, the FIP is successfully repaired.
+
+## Step 8: Repair BL2 Second
+
+Run these commands in order:
+
+```shell
+tftpboot 0x46000000 repair_bl2_padded.bin
+crc32 0x46000000 0x100000
+mtd erase bl2
+mtd write bl2 0x46000000 0x0 0x100000
+mtd read bl2 0x47000000 0x0 0x100000
+crc32 0x47000000 0x100000
+```
+
+Like before, the two CRC values must match. For example:
+
+```
+crc32 for 46000000 ... 460fffff ==> XXXXXXXX
+crc32 for 47000000 ... 470fffff ==> XXXXXXXX
+```
+
+If they match, the BL2 is successfully repaired.
+
+## Step 9: Reboot and Test Flash Boot
+
+Run the command:
+
+```shell
+reset
+```
+
+Now watch the UART output. A successful boot should indicate:
+
+```
+Jump to BL
+NOTICE: BL2 ...
+NOTICE: BL2: Booting BL31
+NOTICE: BL31 ...
+U-Boot ...
+```
+
+If you see the U-Boot message, the repairs for BL2 and FIP were successful.
+
+
+
 ### Payload files
 
 The RAM boot payloads are:
