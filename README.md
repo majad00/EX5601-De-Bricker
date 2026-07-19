@@ -114,7 +114,7 @@ Recommended repair order:
 cd src
 python loader.py COM3
 ```
-When linux is booted, go to web site 192.168.1.18080 to complete recovery.
+When linux is booted, go to web site 192.168.1.18080 to complete recovery or SSH 192.168.1.1 to router.
 
 ### Other options:
 From SRC dir simple run:
@@ -151,11 +151,11 @@ python repair_bootchain.py COM3 --write-fip repair_fip.bin --write-bl2 repair_bl
 
 
 
-### Troubleshooting 
+# Troubleshooting 
 
 If the Ymodem transfer fails and you need to use a LAN to upload files OR if you wish to perform a manual repair, follow these steps:
 
-## Step 1: Prepare Files on Your PC
+#### Step 1: Prepare Files on Your PC
 
 You need the following files:
 
@@ -166,11 +166,13 @@ Place these files in a single folder, for example:
 
 `C:\De-Bricker\`
 
-## Step 2: Create Padded BL2 and FIP Files
+
+#### Step 2: Create Padded BL2 and FIP Files
 
 Open PowerShell in the folder where the files are located.
 
-### Create Padded BL2
+
+#### Create Padded BL2
 
 Run the following command:
 
@@ -178,7 +180,8 @@ Run the following command:
 python -c "from pathlib import Path; d=Path('repair_bl2.bin').read_bytes(); assert len(d)<=0x100000; Path('repair_bl2_padded.bin').write_bytes(d+b'\xff'*(0x100000-len(d))); print('repair_bl2:', len(d), '->', 0x100000)"
 ```
 
-### Create Padded FIP
+
+#### Create Padded FIP
 
 Run the following command:
 
@@ -191,21 +194,24 @@ After running these commands, you should have the following padded files:
 - `repair_bl2_padded.bin` = 1,048,576 bytes
 - `repair_fip_padded.bin` = 1,835,008 bytes
 
-## Step 3: Start TFTP Server
+
+#### Step 3: Start TFTP Server
 
 Place the padded files in your TFTP server root directory:
 
 - `repair_bl2_padded.bin`
 - `repair_fip_padded.bin`
 
-### Example Network Settings
+
+#### Example Network Settings
 
 - PC / TFTP Server IP: `192.168.1.10`
 - Router U-Boot IP: `192.168.1.2`
 
 Connect your PC's Ethernet to the router's LAN port.
 
-## Step 4: Boot RAM De-Bricker
+
+#### Step 4: Boot RAM De-Bricker
 
 Run your de-bricker tool with the following command:
 
@@ -229,7 +235,8 @@ You should see:
 
 `EX5601-DEBRICKER>`
 
-## Step 5: Confirm Layout Before Writing
+
+#### Step 5: Confirm Layout Before Writing
 
 Run the command:
 
@@ -250,7 +257,8 @@ Ensure you see the exact safe layout:
 
 If the FIP shows an incorrect layout (e.g., `0x000000380000-0x000000580000 : "fip"`), proceed at your own risk, as this overlaps with the zloader area.
 
-## Step 6: Set Network in U-Boot
+
+#### Step 6: Set Network in U-Boot
 
 At the `EX5601-DEBRICKER>` prompt, run:
 
@@ -265,13 +273,15 @@ Test the TFTP with the FIP file:
 tftpboot 0x46000000 repair_fip_padded.bin
 ```
 
-### Expected Output:
+
+#### Expected Output:
 
 ```
 Bytes transferred = 1835008
 ```
 
-## Step 7: Repair FIP First
+
+#### Step 7: Repair FIP First
 
 Run these commands in order:
 
@@ -293,7 +303,8 @@ crc32 for 47000000 ... 471bffff ==> XXXXXXXX
 
 If they match, the FIP is successfully repaired.
 
-## Step 8: Repair BL2 Second
+
+#### Step 8: Repair BL2 Second
 
 Run these commands in order:
 
@@ -315,7 +326,8 @@ crc32 for 47000000 ... 470fffff ==> XXXXXXXX
 
 If they match, the BL2 is successfully repaired.
 
-## Step 9: Reboot and Test Flash Boot
+
+#### Step 9: Reboot and Test Flash Boot
 
 Run the command:
 
@@ -337,7 +349,8 @@ If you see the U-Boot message, the repairs for BL2 and FIP were successful.
 
 
 
-### Payload files
+
+#### Payload files
 
 The RAM boot payloads are:
 
@@ -360,8 +373,35 @@ Optional factory restore image:
 ```text
 factory.bin # not provided with release 
 ```
+## Recreate UBI Recovery Volume
 
-### Building from source
+If a router has lost its recovery volume, you can recreate it using the following steps with a script located in the `/src` directory.
+
+1. After downloading the source code, navigate to the `/src` directory:
+   ```powershell
+   cd src
+   python loader.py COM3
+   ```
+
+2. Download the following files from the OpenWrt archive:
+   - `ubootmod sysupgrade` and rename it to `firmware.bin`
+   - `ubootmod recovery` and rename it to `recovery.itb`
+
+3. After the `loader.sh` script finishes, copy these three files to the router:
+   - The script `recreate_ubi_recovery_and_sysupgrade.sh` from the `/src` directory of the repository.
+   - `firmware.bin`
+   - `recovery.itb`
+
+4. Once these files are copied to the router's `/tmp` directory, and run commands:
+   ```bash
+   cd /tmp
+   chmod +x recreate_ubi_recovery_and_sysupgrade.sh
+   YES=1 /tmp/recreate_ubi_recovery_and_sysupgrade.sh
+   ```
+
+This will recreate the partition, copy the recovery image to the recovery partition, and initiate the sysupgrade. Finally, the router will reboot.
+
+# Building from source
 
 Install dependencies:
 
@@ -381,7 +421,7 @@ Run from source on Linux:
 python3 debricker_menu.py /dev/ttyUSB0
 ```
 
-### Building release binaries
+## Building release binaries
 
 Install PyInstaller:
 
