@@ -1,7 +1,7 @@
 # EX5601-De-Bricker
 
-### If your EX5601 / T56 router has become a paper-weight, this tool can de-bricks it.
-> Do not requite LAN connection to router, it works using UART serial connection only.
+### This tool can recover from any soft brick EX5601 / T56 routers.
+>  Require UART connection only.
 
 ### How it works
 EX5601-De-Bricker is written in Python and uses the MediaTek BootROM UART protocol, including BootROM sync and RAM-stage loading, similar in concept to tools such as mtk_uartboot. 
