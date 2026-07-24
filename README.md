@@ -28,12 +28,12 @@ Wait for the **Repair menu ** to laod, and select the repair option from menu li
 ### Web based recovery ( Router had openwrt stock OR OEM before bricked) 
 > Connection to router using UART and LAN port
 
-Step 1: Download bundle from: "https://github.com/majad00/ex5601-openwrt-ubootmod-to-stock-layout/"releases/download/1.1/restore_bundle_ex5601.tar.gz" beofore you start
+Step 1: Download de-bricker and this bundle from: "https://github.com/majad00/ex5601-openwrt-ubootmod-to-stock-layout/"releases/download/1.1/restore_bundle_ex5601.tar.gz" beofore you start
 
-Step 2: Change local LAN ip can be any from 192.168.1.x ( Do not use 192.168.1.1)
+Step 2: Change local LAN ip to any from 192.168.1.x range ( Do not use 192.168.1.1)
 
 Step 3: Run 
-Example on windows 10, assume com port COM3
+Example on windows 10 where com port = COM3
 
 ```powershell
 cd src
@@ -46,18 +46,14 @@ Browse to 192.168.1.1:18080, upload the bundle, and choose recovery type.
 
 Connect the USB-UART adapter and check the serial device:
 
-```bash
-ls /dev/ttyUSB*
-```
-
-Run:
-Precompile binar:
+Run Precompile binar:
 ```bash
 ./ex5601-debricker /dev/ttyUSB0
 ```
 from source:
 
 ```bash
+cd src
 chmod +x loader.sh ; ./loader.sh /dev/ttyUSB0
 ```
 OR
