@@ -1,61 +1,48 @@
 # EX5601-De-Bricker
 
-### This tool can recover from any soft brick EX5601 / T56 routers.
->  Require UART connection only.
+### Recover any soft bricked EX5601 / T56 routers.
 
-### How it works
-EX5601-De-Bricker is written in Python and uses the MediaTek BootROM UART protocol, including BootROM sync and RAM-stage loading, similar in concept to tools such as mtk_uartboot. 
+## Before start
+Download it from  **Releases** section and extract it.
+https://github.com/majad00/EX5601-De-Bricker/releases/download/1.1/EX5601-De-Bricker-v1.zip
 
-It is built specifically for Zyxel EX5601-T0 / T56 routers and understands the router’s boot chain, partition layout, and recovery requirements.
+## Quick start ( select option based on last known router state)
+> If last time router boot into openwrt ubootmod, select Menu based recovery, else if router had openwrt stock or OEM firmware before it get bricked, then select Web based recovery.
+### Menu based recovery ( Router had openwrt ubootmod before bricked)
+> Connection to router using UART
 
-**Recovery often requires a UART terminal, TFTP server, manual U-Boot commands, and careful partition handling, but with this tool you automates everything**
-
-It can:
-- Detect the EX5601/T56 BootROM target.
-- Use controlled EX5601-DEBRICKER>.
-- Verify the expected ubootmod MTD partition layout.
-- Repair BL2 and FIP directly from the host script.
-- Pad images to the correct partition size automatically.
-- Write selected partitions safely.
-- Read back written partitions and verify them with CRC32.
-- Restore Factory/factory from backup.
-
-
-
-## 1. Quick guide
-(**Download de-bricker and run it from PC while router connecte to UART**)
-
-###  download
-
-For normal users, download the latest tested build from the  **Releases** section.
-
-Windows / Linux: Latest release packag from here =  https://github.com/majad00/EX5601-De-Bricker/releases/download/1.1/EX5601-De-Bricker-v1.zip
-
-```text
-Windows: EX5601-De-Bricker-v1.zip
-```
-
-Extract the archive and keep the included files together.
-
-
-### Windows quick start
-
-Open PowerShell in the extracted folder, suppose the com  port is COM3
-
-Run:
+Example on windows 10, where com port = COM3
 
 ```powershell
 .\ex5601-debricker.exe COM3
 ```
-OR if you have python installed run from source
+OR if you have python installed run from source /src directory
 ```powershell
+cd src
 python .\debricker_menu.py com3
 ```
 
 Start De-Bricker and then power-cycle the router to go through BootROM sync.
-Wait for the **Repair menu ** to laod, and select the repair option from menu list
+Wait for the **Repair menu ** to laod, and select the repair option from menu list ( recommended is option 5)
 
-### Linux quick start
+### Web based recovery ( Router had openwrt stock OR OEM before bricked) 
+> Connection to router using UART and LAN port
+
+Step 1: Download bundle from: "https://github.com/majad00/ex5601-openwrt-ubootmod-to-stock-layout/"releases/download/1.1/restore_bundle_ex5601.tar.gz" beofore you start
+
+Step 2: Change local LAN ip can be any from 192.168.1.x ( Do not use 192.168.1.1)
+
+Step 3: Run 
+Example on windows 10, assume com port COM3
+
+```powershell
+cd src
+python loader.py COM3
+```
+Wait for YMODEM transfer (100%) and Linux boot. The message "httpd server started" appears.
+Browse to 192.168.1.1:18080, upload the bundle, and choose recovery type.
+
+### Linux 
 
 Connect the USB-UART adapter and check the serial device:
 
@@ -105,6 +92,27 @@ Recommended repair order:
 3. Repair BL2 only if the preloader/BL2 is damaged.
 4. Restore Factory only from a known-good backup.
 ```
+
+### 1 How it works
+EX5601-De-Bricker is written in Python and uses the MediaTek BootROM UART protocol, including BootROM sync and RAM-stage loading, similar in concept to tools such as mtk_uartboot. 
+
+It is built specifically for Zyxel EX5601-T0 / T56 routers and understands the router’s boot chain, partition layout, and recovery requirements.
+
+**Recovery often requires a UART terminal, TFTP server, manual U-Boot commands, and careful partition handling, but with this tool you automates everything**
+
+It can:
+- Detect the EX5601/T56 BootROM target.
+- Use controlled EX5601-DEBRICKER>.
+- Verify the expected ubootmod MTD partition layout.
+- Repair BL2 and FIP directly from the host script.
+- Pad images to the correct partition size automatically.
+- Write selected partitions safely.
+- Read back written partitions and verify them with CRC32.
+- Restore Factory/factory from backup.
+
+
+
+
 
 ### For Expert users only ( Examples on Windows 10:
 > [!TIP]
